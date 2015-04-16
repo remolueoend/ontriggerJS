@@ -1,0 +1,27 @@
+{
+  "name": "ontriggerJS",
+  "version": "1.0.0",
+  "homepage": "https://github.com/remolueoend/ontriggerJS",
+  "authors": [
+    "Remo Zumsteg <r.zumsteg@icloud.com>"
+  ],
+  "description": "Module expanding objects to support a trigger based event handling.",
+  "main": "dist/ontrigger.js",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "on",
+    "trigger",
+    "event",
+    "handling"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
