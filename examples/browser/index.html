@@ -1,0 +1,13 @@
+<html>
+    <body>
+        <script type="text/javascript" src="../../dist/ontrigger.browser.js"></script>
+        <script type="text/javascript">
+            var obj = ontrigger({});
+            obj.on('test', function(e, data){
+                console.log('event fired! (' + data + ')');
+            });
+
+            obj.trigger('test', 'message');
+        </script>
+    </body>
+</html>
