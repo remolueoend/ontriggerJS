@@ -33,35 +33,29 @@ describe('initObject', function(){
         }
     });
 
-});
-
-describe('initClass', function(){
-
-    it('should expand the prototype', function(){
-        function TestClass(){  }
-        TestClass.prototype = {
-            testMethod: function(){}
+    it('should inherit from OnTrigger', function(done){
+        function TestClass(){ ontrigger.OnTrigger.call(this); }
+        ontrigger(TestClass);
+        TestClass.prototype.test = function(){
+            this.trigger('test');
         };
-        TestClass = ontrigger(TestClass);
-        if(typeof TestClass.prototype.testMethod !== 'function' ||
-            typeof TestClass.prototype.on !== 'function' ||
-            typeof TestClass.prototype.trigger !== 'function'){
-            throw new Error('Prototype not expanded properly.');
+        var obj = new TestClass();
+
+        if(typeof obj.trigger !== 'function'){
+            throw Error('Method \'trigger\' missing on instance');
         }
+        if(typeof obj.on !== 'function'){
+            throw Error('Method \'on\' missing on instance');
+        }
+        if(typeof obj.test !== 'function'){
+            throw Error('Method \'test\' missing on instance');
+        }
+        obj.on('test', function(){
+            done();
+        });
+
+        obj.test();
+
     });
 
-    it('should append the interface to the instances', function(){
-        function TestClass(param){ this.testProp = param; }
-        TestClass.prototype = {
-            testMethod: function(){}
-        };
-        TestClass = ontrigger(TestClass), inst = new TestClass('test');
-
-        if(inst.testProp !== 'test' ||
-            typeof inst.testMethod !== 'function' ||
-            typeof inst.on !== 'function' ||
-            typeof inst.trigger !== 'function'){
-            throw new Error('Instance not expanded properly.');
-        }
-    });
 });
