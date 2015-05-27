@@ -4,6 +4,13 @@ var ontrigger = require('../lib/ontrigger'),
 
 describe('initObject', function(){
 
+    it('should create a new object when not providing one', function(){
+        var obj = ontrigger();
+        if(typeof obj !== 'object'){
+            throw new Error('Invalid return.');
+        }
+    });
+
     it('should add a method \'on\' to the instance', function(){
         var obj = ontrigger({});
         if(typeof obj.on !== 'function'){

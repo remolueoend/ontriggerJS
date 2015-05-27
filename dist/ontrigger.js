@@ -259,6 +259,7 @@ TriggeredEvent.prototype = {
  */
 function ontrigger(obj, propertyName) {
     if (typeof obj !== 'function') {
+        obj = obj || {};
         if (propertyName && propertyName.length) {
             obj[propertyName] = new OnTrigger();
         } else {

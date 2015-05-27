@@ -119,7 +119,7 @@ var listeners = obj.listenerCollection('myEvent');
 ### hasListeners(eventName)
 Returns a boolean, if the current object has any listeners for the specified event attached:
 ```javascript
-var hasListeners = obj.hasListeners('myEvent');
+var hasListeners = obj.hasListeners('myEvent'); 
 ```
 
 ## Class ListenerCollection
