@@ -35,6 +35,18 @@ obj.on('eventName', function(event, d1, d2, d3){ ... });
 obj.trigger('eventName', d1, d2, d3);
 ```
 
+## Expanding an object with a sub-property:
+```javascript
+var ontrigger = require('ontrigger');
+
+var obj = {foo: 'baz'};
+// Expand the object under the property 'events':
+ontrigger(obj, 'events');
+
+obj.events.on('eventName', function(event, d1, d2, d3){ ... });
+obj.events.trigger('eventName', d1, d2, d3);
+```
+
 ## Expanding a prototype (inheritance)
 ```javascript
 var ontrigger = require('ontrigger');
@@ -53,6 +65,14 @@ CustomClass.prototype.foo = function(){ ... }
 var obj = new CustomClass();
 obj.on('eventName', function(e, ...){ ... });
 obj.trigger('eventName', ...);
+```
+
+## ontrigger([obj], [propertyName])
+The ontrigger function (retrieved over ```require('ontriggerJS')``` or ```window.ontrigger```) can be called by providing an object or a 'class'-function as ```obj``` parameter (see examples above). If an object is provided, an additional ```propertyName``` can be specified to attach the ontrigger methods and properties to a sub-property of the object. If no parameter is provided, a new expanded object will be generated. The ontrigger-function always returns the expanded object or function:
+```javascript
+var obj2 = ontrigger(obj1) // obj1 === obj2
+var obj = ontrigger({});
+var obj = ontrigger();
 ```
 
 ## API
@@ -137,6 +157,66 @@ Returns the target object this listener is attached to.
 
 #### remove()
 Removes the listener from its collection. The listener's handler function won't be called anymore when the event is triggered.
-To re-attach the listener's handler fucntion, use the ```ListenerCollection::push()``` method. But a new instance of ```Listener``` will be generated anyway.
+To re-attach the listener's handler function, use the ```ListenerCollection::push()``` method. But a new instance of ```Listener``` will be generated anyway.
+Example:
+```javascript
+var ontrigger = require('ontrigger');
+var obj = ontrigger({});
 
-```TriggeredEvent```
+var handler = function(){ ... }
+
+// attach a listener
+var listener = obj.on('myEvent', handler);
+// remove the listener. The function 'handler' won't be triggered anymore.
+listener.remove();
+
+// Re-attach the handler function again. Caution: newListener !== listener!!
+// The function 'handler' will be triggered again.
+var newListener = obj.listenerCollection('myEvent').push(listener);
+```
+
+### Class TriggeredEvent
+Represents a triggered event. If a handler function gets triggred, the first parameter is always a reference to a ```TriggeredEvent``` instance. 
+
+#### target()
+Returns the object, on which the event was triggered:
+```javascript
+var ontrigger = require('ontrigger');
+var obj = ontrigger({});
+
+obj.on('myEvent', function(e){
+    // e.target() === obj
+});
+obj.trigger('myEvent');
+```
+
+#### timestamp()
+Returns a UNIX timestamp of the time when the event was triggered.
+
+#### type()
+Returns the name of the event which was triggered:
+```javascript
+var ontrigger = require('ontrigger');
+var obj = ontrigger({});
+
+obj.on('myEvent', function(e){
+    // e.event() === 'myEvent'
+});
+obj.trigger('myEvent');
+```
+
+#### listener()
+Returns a reference to the listener which was triggered.
+
+#### preventDefault()
+Stops the triggering of further listeners. This can be used to stop any further event handling of the current event:
+```javascript
+var ontrigger = require('ontrigger');
+var obj = ontrigger({});
+
+obj.on('myEvent', function(){ /* will be called  */ });
+obj.on('myEvent', function(e){ e.preventDefault(); });
+obj.on('myEvent', function(){ /* will NOT be called  */ });
+
+obj.trigger('myEvent');
+```
