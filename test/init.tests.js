@@ -34,7 +34,7 @@ describe('initObject', function(){
     });
 
     it('should inherit from OnTrigger', function(done){
-        function TestClass(){ ontrigger.OnTrigger.call(this); }
+        function TestClass(){ ontrigger.super(this); }
         ontrigger(TestClass);
         TestClass.prototype.test = function(){
             this.trigger('test');
@@ -55,7 +55,5 @@ describe('initObject', function(){
         });
 
         obj.test();
-
     });
-
 });

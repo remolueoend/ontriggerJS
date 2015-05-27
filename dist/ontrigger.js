@@ -266,7 +266,7 @@ function ontrigger(obj, propertyName) {
         }
         return obj;
     } else {
-        return _inheritFromOnTrigger(obj);
+        return _inheritFromOnTrigger(obj, propertyName);
     }
 }
 
@@ -304,6 +304,14 @@ ontrigger.isEvent = function (obj) {
  * @type {OnTrigger}
  */
 ontrigger.OnTrigger = OnTrigger;
+
+/**
+ * Used to call the OnTrigger base constructor
+ * @param ctx The current initialized object.
+ */
+ontrigger.super = function(ctx){
+    OnTrigger.call(ctx);
+};
 
 
 module.exports = ontrigger;
