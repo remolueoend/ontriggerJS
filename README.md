@@ -8,7 +8,7 @@ Plattform independent Module expanding objects to support a trigger based event 
 ## Usage
 ### Node/CJS
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 ```
 
 ### Browser
@@ -25,7 +25,7 @@ var ontrigger = require('ontrigger');
 
 ## Expanding an object
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 
 var obj = {foo: 'baz'};
 // Expand the object:
@@ -37,7 +37,7 @@ obj.trigger('eventName', d1, d2, d3);
 
 ## Expanding an object with a sub-property:
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 
 var obj = {foo: 'baz'};
 // Expand the object under the property 'events':
@@ -49,7 +49,7 @@ obj.events.trigger('eventName', d1, d2, d3);
 
 ## Expanding a prototype (inheritance)
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 
 function CustomClass(){
   // Do not forget to call the super constructor:
@@ -160,7 +160,7 @@ Removes the listener from its collection. The listener's handler function won't 
 To re-attach the listener's handler function, use the ```ListenerCollection::push()``` method. But a new instance of ```Listener``` will be generated anyway.
 Example:
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 var obj = ontrigger({});
 
 var handler = function(){ ... }
@@ -181,7 +181,7 @@ Represents a triggered event. If a handler function gets triggred, the first par
 #### target()
 Returns the object, on which the event was triggered:
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 var obj = ontrigger({});
 
 obj.on('myEvent', function(e){
@@ -196,7 +196,7 @@ Returns a UNIX timestamp of the time when the event was triggered.
 #### type()
 Returns the name of the event which was triggered:
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 var obj = ontrigger({});
 
 obj.on('myEvent', function(e){
@@ -211,7 +211,7 @@ Returns a reference to the listener which was triggered.
 #### preventDefault()
 Stops the triggering of further listeners. This can be used to stop any further event handling of the current event:
 ```javascript
-var ontrigger = require('ontrigger');
+var ontrigger = require('ontriggerJS');
 var obj = ontrigger({});
 
 obj.on('myEvent', function(){ /* will be called  */ });

@@ -78,12 +78,20 @@ OnTrigger.prototype = {
  */
 function ListenerCollection(eventName, target) {
     this.event = eventName,
-        this.__target = target,
-        this.__listeners = {},
-        this.__cid = 0;
+    this.__target = target,
+    this.__listeners = {},
+    this.__cid = 0;
 }
 
 ListenerCollection.prototype = {
+
+    /**
+     * Returns the event type of this collection.
+     * @returns {string}
+     */
+    eventType: function(){
+        return this.event;
+    },
 
     /**
      * Returns the target of this collection.
@@ -94,14 +102,6 @@ ListenerCollection.prototype = {
     },
 
     /**
-     * Returns an object containing all listeners of this collection.
-     * @returns {*}
-     */
-    listeners: function () {
-        return this.__listeners;
-    },
-
-    /**
      * Adds a new listener to the collection. If an existing listener is provided,
      * a new listener will be created based on the provided one.
      * @param {Listener|function} param An existing listener or a handler function.
@@ -109,7 +109,7 @@ ListenerCollection.prototype = {
      */
     push: function (param) {
         var nl = new Listener(++this.__cid, arguments[0] instanceof Listener ? arguments[0].handler() : arguments[0], this);
-        this.listeners()[nl.id()] = nl;
+        this.__listeners[nl.id()] = nl;
         return nl;
     },
 
@@ -119,7 +119,7 @@ ListenerCollection.prototype = {
      * @returns {boolean}
      */
     remove: function (id) {
-        return delete this.listeners()[id];
+        return delete this.__listeners[id];
     },
 
     /**
@@ -127,9 +127,9 @@ ListenerCollection.prototype = {
      * @param data Additional array of data to send to the handlers
      */
     trigger: function (data) {
-        for (var l in this.listeners()) {
-            if (this.listeners().hasOwnProperty(l) && this.listeners()[l] instanceof Listener) {
-                var listener = this.listeners()[l],
+        for (var l in this.__listeners) {
+            if (this.__listeners.hasOwnProperty(l) && this.__listeners[l] instanceof Listener) {
+                var listener = this.__listeners[l],
                     event = new TriggeredEvent(listener);
                 listener.handler().apply(listener.target(), [event].concat(data || []));
                 if (event.__prevented) {
@@ -192,7 +192,7 @@ Listener.prototype = {
      * @returns {boolean}
      */
     remove: function () {
-        return this.__collection.remove(this.id);
+        return this.__collection.remove(this.__id);
     }
 };
 

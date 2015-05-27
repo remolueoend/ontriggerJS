@@ -8,7 +8,7 @@ describe('on', function(){
         var obj = ontrigger({});
         var listener = obj.on(testEvent, function(){});
         if(!obj.__ontrigger_events__[testEvent] ||
-            !obj.__ontrigger_events__[testEvent].listeners()[listener.id()]){
+            !obj.__ontrigger_events__[testEvent].__listeners[listener.id()]){
             throw new Error('Listener was not attached properly.');
         }
     });
@@ -19,7 +19,7 @@ describe('on', function(){
             var obj = ontrigger({});
             var listener = obj.on(testEvent, function(){});
             listener.remove();
-            if(obj.__ontrigger_events__[testEvent].listeners[listener.id()]){
+            if(obj.__ontrigger_events__[testEvent].__listeners[listener.id()]){
                 throw new Error('Listener was not removed from event collection.');
             }
         });
