@@ -145,18 +145,15 @@ ListenerCollection.prototype = {
      * @param data Additional array of data to send to the handlers
      */
     trigger: function (data) {
-        // use every() instead of forEach() which allows stopping the loop by returning false:
-        this.__listeners.every(function(listener){
-            var event = new TriggeredEvent(listener);
+        var listener, event;
+        for(var i = 0; i < this.__listeners.length; i++){
+            listener = this.__listeners[i], event = new TriggeredEvent(listener);
             listener.handler().apply(listener.target(), [event].concat(data || []));
-
-            if (event.__prevented) {
-                return false;
+            if(event.__prevented){
+                break;
             }
-            return true;
-        });
+        }
     }
-
 };
 
 /**
