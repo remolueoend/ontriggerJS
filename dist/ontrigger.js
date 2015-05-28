@@ -289,7 +289,7 @@ function ontrigger(obj, propertyName) {
 function _inheritFromOnTrigger(childFunc){
 
     function _(){
-        this.constructor = OnTrigger();
+        this.constructor = OnTrigger;
     }
     _.prototype = OnTrigger.prototype;
     childFunc.prototype = new _();

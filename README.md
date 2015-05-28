@@ -20,7 +20,7 @@ var ontrigger = require('ontriggerjs');
             var or = window.ontrigger;
         </script>
     </body>
-</html>
+</html> 
 ```
 
 ## Expanding an object
