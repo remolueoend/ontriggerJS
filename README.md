@@ -110,7 +110,7 @@ obj.trigger('myEvent');
 obj.trigger('myEvent');
 ```
 
-### listenerCollection(eventName)
+### listeners(eventName)
 Returns the collection of listeners which are attached to the specified event of the current object. The collection is of type ```ListenerCollection```:
 ```javascript
 var listeners = obj.listenerCollection('myEvent');
@@ -134,6 +134,21 @@ Returns the target object this collection is attached to.
 ### push(item)
 Adds a new listener to the collection. parameter ```item``` can be an object of type ```Listener``` or a function.
 If a Listener instance is provided, a new Listener instance will be created based on the provided one, because a listener can only be a member of one collection at the time. This method returns always the new instance of ```Listener``` which was added to the collection.
+
+### insert(index, item)
+Same as ```push(item)```. Additionally, this method allows you to provide an index for insertion. See ```Array.prototype.splice``` for further info.
+This method may be used to insert a listener before all others, if preventDefault is necessary:
+```javascript
+var ontrigger = require('ontriggerJS');
+var obj = ontrigger({});
+obj.on('myEvent', function(){ /* won't be called */ });
+obj.on('myEvent', function(){ /* won't be called */ });
+
+// Add next listener/handler in front of all others:
+obj.listeners('myEvent').insert(0, function(e){ e.preventDefault(); });
+
+obj.trigger('myEvent');
+```
 
 ### remove(id)
 Removes the listener with the specified id from the collection. Returns true if successful, otherwise false.
