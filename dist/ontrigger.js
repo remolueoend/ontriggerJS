@@ -287,12 +287,14 @@ function ontrigger(obj, propertyName) {
 }
 
 function _inheritFromOnTrigger(childFunc){
-
-    function _(){
-        this.constructor = OnTrigger;
-    }
-    _.prototype = OnTrigger.prototype;
-    childFunc.prototype = new _();
+    childFunc.prototype = Object.create(OnTrigger.prototype, {
+        constructor: {
+            value: childFunc,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        }
+    });
 
     return childFunc;
 }
