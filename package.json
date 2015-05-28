@@ -1,6 +1,6 @@
 {
   "name": "ontriggerjs",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Module expanding objects to support a trigger based event handling.",
   "main": "dist/ontrigger.js",
   "directories": {
