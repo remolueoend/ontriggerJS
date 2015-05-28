@@ -150,17 +150,14 @@ obj.listeners('myEvent').insert(0, function(e){ e.preventDefault(); });
 obj.trigger('myEvent');
 ```
 
-### remove(id)
-Removes the listener with the specified id from the collection. Returns true if successful, otherwise false.
+### remove(listener)
+Removes the given listener from the collection. Returns true if successful, otherwise false.
 
 ### trigger([data])
 Triggers all event listeners of the collection. The parameter ```data``` is an optional array of data to provide to the listeners' handler functions.
 
 ## Class Listener
 Represents a single event listener. A listenr is always a member of a single ```ListenerCollection``` instance. Every listener has a unique ID in its collection, and an attached handler function.
-
-### id()
-Returns the listener's ID. This ID is only unique in the listener's collection, NOT globally.
 
 ### handler()
 Returns the listener's handler function.
