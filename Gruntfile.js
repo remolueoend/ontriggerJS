@@ -3,11 +3,11 @@ module.exports = function(grunt){
 
     grunt.initConfig({
         browserify: {
-            'dist/ontrigger.js': ['lib/ontrigger.browser.js']
+            'dist/ontrigger.js': ['lib/index.browser.js']
         },
         watch: {
             onTriggerScripts: {
-                files: ['lib/ontrigger.js',' lib/ontrigger.js'],
+                files: ['lib/index.js',' lib/index.browser.js','lib/OnTrigger.js','lib/ListenerCollection.js','lib/Listener.js','lib/TriggeredEvent.js',],
                 tasks: ['browserify']
             },
             config: {

@@ -1,9 +1,150 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/**
+ * Wrapper representing a single event listener.
+ * @param handler The handler function of this listener
+ * @param listenerCollection The collection this listener is attached to
+ * @param {boolean} [once=false] Set to true to remove it after a trigger.
+ * @constructor
+ */
+function Listener(handler, listenerCollection, once) {
+    this.__handler = handler;
+    this.__collection = listenerCollection;
+    this.__once = once || false;
+}
 
-window.ontrigger = require('./ontrigger');
-},{"./ontrigger":2}],2:[function(require,module,exports){
+Listener.prototype = {
 
-var extend = require('extend');
+    /**
+     *
+     * Returns the handler function.
+     * @returns {function}
+     */
+    handler: function () {
+        return this.__handler;
+    },
+
+    /**
+     * Returns the name of the event.
+     * @returns {string}
+     */
+    event: function () {
+        return this.__collection.event;
+    },
+
+    /**
+     * returns the target object this listener is attached to.
+     * @returns {*}
+     */
+    target: function () {
+        return this.__collection.target();
+    },
+
+    /**
+     * Removes this listener from the event handling.
+     * @returns {boolean}
+     */
+    remove: function () {
+        return this.__collection.remove(this);
+    }
+};
+
+module.exports = Listener;
+},{}],2:[function(require,module,exports){
+var Listener = require('./Listener'),
+    TriggeredEvent = require('./TriggeredEvent');
+
+/**
+ * Represents a collection of listeners attached to an event
+ * @param eventName The name of the event of this collection
+ * @param target The target object
+ * @constructor
+ */
+function ListenerCollection(eventName, target) {
+    this.event = eventName;
+    this.__target = target;
+    this.__listeners = [];
+}
+
+ListenerCollection.prototype = {
+
+    /**
+     * Returns the event type of this collection.
+     * @returns {string}
+     */
+    eventType: function(){
+        return this.event;
+    },
+
+    /**
+     * Returns the target of this collection.
+     * @returns {*}
+     */
+    target: function () {
+        return this.__target;
+    },
+
+    /**
+     * Adds a new listener to the collection. If an existing listener is provided,
+     * a new listener will be created based on the provided one.
+     * @param {Listener|function} listener An existing listener or a handler function.
+     * @param {boolean} [once=false] Set to true to insert the given handler only once.
+     * @returns {Listener}
+     */
+    push: function (listener, once) {
+        return this.insert(this.__listeners.length, listener, once);
+    },
+
+    /**
+     * Adds a new listener to the collection at the given index. If an existing listener is provided,
+     * a new listener will be created based on the provided one.
+     * @param {number} index Index at where the listener should be inserted.
+     * @param {Listener|function} listener An existing listener or a handler function.
+     * @param {boolean} [once=false] Set to true to insert the given handler only once.
+     * @returns {Listener}
+     */
+    insert: function(index, listener, once){
+        var isListener = listener instanceof Listener;
+        var nl = new Listener(isListener ? listener.handler() : listener, this, isListener ? listener.__once : once);
+        this.__listeners.splice(index, 0, nl);
+        return nl;
+    },
+
+    /**
+     * Removes a listener from the collection.
+     * @param {Listener} listener The listener to remove.
+     * @returns {boolean}
+     */
+    remove: function (listener) {
+        var i;
+        if((i = this.__listeners.indexOf(listener)) !== -1){
+            this.__listeners.splice(i, 1);
+            return true;
+        }
+        return false;
+    },
+
+    /**
+     * Calls all listeners in this collection.
+     * @param data Additional array of data to send to the handlers
+     */
+    trigger: function (data) {
+        var listener, event;
+        for(var i = 0; i < this.__listeners.length; i++){
+            listener = this.__listeners[i], event = new TriggeredEvent(listener);
+            listener.handler().apply(listener.target(), [event].concat(data || []));
+            if(listener.__once === true){
+                this.remove(listener);
+            }
+            if(event.__prevented){
+                break;
+            }
+        }
+    }
+};
+
+module.exports = ListenerCollection;
+},{"./Listener":1,"./TriggeredEvent":4}],3:[function(require,module,exports){
+var ListenerCollection = require('./ListenerCollection');
 
 /**
  * Encapsulates methods and properties to attach to an ontrigger object.
@@ -20,11 +161,11 @@ OnTrigger.prototype = {
      * Adds a listener to the specified event.
      * @param eventName The name of the event to attach to
      * @param handler The handler function to execute
-     * @param once Set to true to remove the listener after the first triggering.
+     * @param {boolean} [once=false] Set to true to remove the listener after the first triggering.
      * @returns {Listener}
      */
     on: function (eventName, handler, once) {
-        return this.listeners(eventName).push(handler);
+        return this.listeners(eventName).push(handler, once);
     },
 
     /**
@@ -69,148 +210,8 @@ OnTrigger.prototype = {
     }
 };
 
-/**
- * Represents a collection of listeners attached to an event
- * @param eventName The name of the event of this collection
- * @param target The target object
- * @constructor
- */
-function ListenerCollection(eventName, target) {
-    this.event = eventName;
-    this.__target = target;
-    this.__listeners = [];
-    this.__cid = 0;
-}
-
-ListenerCollection.prototype = {
-
-    /**
-     * Returns the event type of this collection.
-     * @returns {string}
-     */
-    eventType: function(){
-        return this.event;
-    },
-
-    /**
-     * Returns the target of this collection.
-     * @returns {*}
-     */
-    target: function () {
-        return this.__target;
-    },
-
-    /**
-     * Adds a new listener to the collection. If an existing listener is provided,
-     * a new listener will be created based on the provided one.
-     * @param {Listener|function} listener An existing listener or a handler function.
-     * @returns {Listener}
-     */
-    push: function (listener) {
-        return this.insert(this.__listeners.length, listener);
-    },
-
-    /**
-     * Adds a new listener to the collection at the given index. If an existing listener is provided,
-     * a new listener will be created based on the provided one.
-     * @param {Listener|function} listener An existing listener or a handler function.
-     * @returns {Listener}
-     */
-    insert: function(index, listener){
-        var nl = new Listener(++this.__cid, listener instanceof Listener ? listener.handler() : listener, this);
-        this.__listeners.splice(index, 0, nl);
-        return nl;
-    },
-
-    /**
-     * Removes a listener from the collection.
-     * @param id The id of the listener
-     * @returns {boolean}
-     */
-    remove: function (id) {
-        var is = this.__listeners.filter(function(l){ return l.id() === id; });
-        switch(is.length){
-            case 1:
-                this.__listeners.splice(is[0], 1);
-                return true;
-            case 0:
-                return false;
-            default:
-                throw new Error('Multiple listeners with identical ID found.');
-        }
-    },
-
-    /**
-     * Calls all listeners in this collection.
-     * @param data Additional array of data to send to the handlers
-     */
-    trigger: function (data) {
-        var listener, event;
-        for(var i = 0; i < this.__listeners.length; i++){
-            listener = this.__listeners[i], event = new TriggeredEvent(listener);
-            listener.handler().apply(listener.target(), [event].concat(data || []));
-            if(event.__prevented){
-                break;
-            }
-        }
-    }
-};
-
-/**
- * Wrapper representing a single event listener.
- * @param id The id of the listener.
- * @param handler The handler function of this listener
- * @param listenerCollection The collection this listener is attached to
- * @constructor
- */
-function Listener(id, handler, listenerCollection) {
-    this.__id = id, this.__handler = handler, this.__collection = listenerCollection;
-}
-
-Listener.prototype = {
-
-    /**
-     * Returns the id of the listener.
-     * @returns {number}
-     */
-    id: function () {
-        return this.__id;
-    },
-
-    /**
-     *
-     * Returns the handler function.
-     * @returns {function}
-     */
-    handler: function () {
-        return this.__handler;
-    },
-
-    /**
-     * Returns the name of the event.
-     * @returns {string}
-     */
-    event: function () {
-        return this.__collection.event;
-    },
-
-    /**
-     * returns the target object this listener is attached to.
-     * @returns {*}
-     */
-    target: function () {
-        return this.__collection.target();
-    },
-
-    /**
-     * Removes this listener from the event handling.
-     * @returns {boolean}
-     */
-    remove: function () {
-        return this.__collection.remove(this.__id);
-    }
-};
-
+module.exports = OnTrigger;
+},{"./ListenerCollection":2}],4:[function(require,module,exports){
 /**
  * Wrapper providing information about a triggered event.
  * An instance of this class is provided to each handler call.
@@ -265,6 +266,17 @@ TriggeredEvent.prototype = {
     }
 };
 
+module.exports = TriggeredEvent;
+},{}],5:[function(require,module,exports){
+
+window.ontrigger = require('./index');
+},{"./index":6}],6:[function(require,module,exports){
+
+var extend = require('extend'),
+    OnTrigger = require('./OnTrigger'),
+    Listener = require('./Listener'),
+    ListenerCollection = require('./ListenerCollection'),
+    TriggeredEvent = require('./TriggeredEvent');
 
 /**
  * Public module interface.
@@ -286,6 +298,12 @@ function ontrigger(obj, propertyName) {
     }
 }
 
+/**
+ * Internal function inheriting the prototype of OnTrigger to the provided function
+ * @param childFunc Child function/class
+ * @returns {*}
+ * @private
+ */
 function _inheritFromOnTrigger(childFunc){
     childFunc.prototype = Object.create(OnTrigger.prototype, {
         constructor: {
@@ -317,11 +335,13 @@ ontrigger.isEvent = function (obj) {
     return obj instanceof TriggeredEvent;
 };
 
-/**
- * Property allowing access to the OnTrigger class function.
- * @type {OnTrigger}
- */
-ontrigger.OnTrigger = OnTrigger;
+ontrigger.isListenerCollection = function(obj){
+    return obj instanceof ListenerCollection;
+};
+
+ontrigger.isEnabled = function(obj){
+    return obj instanceof OnTrigger;
+};
 
 /**
  * Used to call the OnTrigger base constructor
@@ -333,7 +353,7 @@ ontrigger.super = function(ctx){
 
 
 module.exports = ontrigger;
-},{"extend":3}],3:[function(require,module,exports){
+},{"./Listener":1,"./ListenerCollection":2,"./OnTrigger":3,"./TriggeredEvent":4,"extend":7}],7:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
 var undefined;
@@ -416,4 +436,4 @@ module.exports = function extend() {
 };
 
 
-},{}]},{},[1]);
+},{}]},{},[5]);

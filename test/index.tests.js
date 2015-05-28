@@ -1,8 +1,8 @@
 
-var ontrigger = require('../lib/ontrigger'),
+var ontrigger = require('../lib/index'),
     eventsProperty = 'events';
 
-describe('initObject', function(){
+describe('ontriggerJS', function(){
 
     it('should create a new object when not providing one', function(){
         var obj = ontrigger();
@@ -29,7 +29,7 @@ describe('initObject', function(){
         function TestClass(){ ontrigger(this); }
         var inst = new TestClass();
         if(!(inst instanceof TestClass)){
-            throw new Error('Instance was muted.');
+            throw new Error('Instance was mutated.');
         }
     });
 
@@ -40,7 +40,7 @@ describe('initObject', function(){
         }
     });
 
-    it('should inherit from OnTrigger', function(done){
+    it('should inherit from OnTrigger when providing a function', function(done){
         function TestClass(){ ontrigger.super(this); }
         ontrigger(TestClass);
         TestClass.prototype.test = function(){
@@ -56,6 +56,9 @@ describe('initObject', function(){
         }
         if(typeof obj.test !== 'function'){
             throw Error('Method \'test\' missing on instance');
+        }
+        if(!ontrigger.isEnabled(obj)){
+            throw Error('Instance is not instance of OnTrigger');
         }
         obj.on('test', function(){
             done();
